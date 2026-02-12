@@ -1,28 +1,9 @@
-# netlify.toml
-# This file configures Netlify to serve your index.html for ALL paths.
-# This enables clean URLs like /admin (without .html) while using client-side routing or redirects.
-
 [build]
-  publish = "."          # Publish the root directory (where index.html is)
-  command = ""           # No build command needed for static HTML/JS site
+  publish = "."
+  command = ""
 
-# Redirect all paths to index.html (SPA-style routing)
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/admin"
+  to = "/admin.html"
   status = 200
   force = true
-
-# Optional: If you want to serve admin.html specifically for /admin
-# (uncomment if you prefer a separate admin page instead of JS routing)
-# [[redirects]]
- from = "/admin"
- to = "/admin.html"
- status = 200
- force = true
-
-# Optional: Pretty URLs (remove .html extension if someone types it)
-[[redirects]]
-  from = "/*.html"
-  to = "/:splat"
-  status = 301
