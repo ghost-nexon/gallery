@@ -40,7 +40,7 @@
         <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
         <a href="#" class="hover:text-accent-purple transition-colors">About</a>
         <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <a href="admin.html" class="hover:text-accent-purple transition-colors">Admin</a>
+        <a href="/admin" class="hover:text-accent-purple transition-colors">Admin</a>
       </div>
 
       <button id="menu-toggle" class="md:hidden text-3xl focus:outline-none">
@@ -55,7 +55,7 @@
         <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
         <a href="#" class="hover:text-accent-purple transition-colors">About</a>
         <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <a href="admin.html" class="hover:text-accent-purple transition-colors">Admin</a>
+        <a href="/admin" class="hover:text-accent-purple transition-colors">Admin</a>
       </div>
     </div>
   </nav>
@@ -74,6 +74,7 @@
       <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <!-- Images will be loaded here -->
       </div>
+
       <div class="text-center mt-12">
         <button id="load-more" class="border-2 border-accent-purple text-accent-purple px-8 py-3 sm:px-10 sm:py-4 rounded-full hover:bg-accent-purple hover:text-white transition uppercase tracking-wider text-sm">
           Load More
@@ -82,10 +83,10 @@
     </div>
   </section>
 
-  <!-- Lightbox -->
+  <!-- Lightbox Modal -->
   <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-50">
-    <button id="close-btn" class="absolute top-4 right-4 text-5xl text-white hover:text-accent-purple">&times;</button>
-    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] max-w-[95vw] object-contain">
+    <button id="close-btn" class="absolute top-4 right-4 sm:top-8 sm:right-8 text-5xl sm:text-6xl text-white hover:text-accent-purple transition-colors cursor-pointer">&times;</button>
+    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] object-contain transition-transform duration-300">
   </div>
 
   <!-- Footer -->
@@ -105,11 +106,12 @@
 
     const galleryGrid = document.getElementById('gallery-grid');
     const loadMoreBtn = document.getElementById('load-more');
+
     let offset = 0;
     const limit = 30;
     let allImages = [];
 
-    // Mobile menu
+    // Mobile menu toggle
     document.getElementById('menu-toggle')?.addEventListener('click', () => {
       document.getElementById('mobile-menu').classList.toggle('hidden');
     });
@@ -123,7 +125,7 @@
         .range(offset, offset + limit - 1);
 
       if (error) {
-        console.error(error);
+        console.error('Error loading gallery:', error);
         return;
       }
 
@@ -131,10 +133,10 @@
         const item = document.createElement('div');
         item.className = 'group relative overflow-hidden rounded-xl shadow-2xl cursor-pointer';
         item.innerHTML = `
-          <div class="aspect-[3/4] overflow-hidden">
+          <div class="aspect-[3/4] overflow-hidden bg-gray-900">
             <img src="\( {img.url}" alt=" \){img.caption}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
           </div>
-          <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
+          <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
             <p class="text-base sm:text-lg italic lowercase">${img.caption}</p>
           </div>
         `;
@@ -142,23 +144,24 @@
         allImages.push({ src: img.url, caption: img.caption });
       });
 
-      offset += limit;
-      if (data.length < limit) loadMoreBtn.style.display = 'none';
+      offset += data.length;
 
+      if (data.length < limit) {
+        loadMoreBtn.style.display = 'none';
+      }
+
+      // Add lightbox listeners
       document.querySelectorAll('.group').forEach((el, i) => {
-        el.addEventListener('click', () => showImage(i));
+        el.addEventListener('click', () => {
+          const img = document.getElementById('lightbox-img');
+          img.src = allImages[i].src;
+          document.getElementById('lightbox').classList.remove('hidden');
+          document.getElementById('lightbox').classList.add('flex');
+        });
       });
     }
 
-    // Lightbox
-    let currentIndex = 0;
-    function showImage(index) {
-      currentIndex = index;
-      document.getElementById('lightbox-img').src = allImages[index].src;
-      document.getElementById('lightbox').classList.remove('hidden');
-      document.getElementById('lightbox').classList.add('flex');
-    }
-
+    // Lightbox close
     document.getElementById('close-btn')?.addEventListener('click', () => {
       document.getElementById('lightbox').classList.add('hidden');
       document.getElementById('lightbox').classList.remove('flex');
@@ -171,7 +174,7 @@
       }
     });
 
-    // Init
+    // Initialize gallery
     loadImages();
     loadMoreBtn.addEventListener('click', loadImages);
   </script>
