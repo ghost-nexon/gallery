@@ -30,58 +30,56 @@
 </head>
 <body class="bg-black text-gray-200 font-grotesk min-h-screen">
 
-  <!-- Navbar (Responsive with Hamburger) -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md border-b border-gray-800">
+  <!-- Responsive Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
       <div class="text-2xl sm:text-3xl font-medium tracking-wider text-white">COMATOZZE</div>
 
-      <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center space-x-8 text-sm uppercase tracking-widest">
-        <a href="#" class="hover:text-accent-purple transition-colors">Home</a>
-        <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">About</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <button id="admin-btn" class="hover:text-accent-purple transition-colors hidden">Admin</button>
-        <button id="logout-btn" class="hover:text-accent-purple transition-colors hidden">Logout</button>
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center space-x-8 text-xs sm:text-sm uppercase tracking-widest">
+        <a href="#" class="hover:text-accent-purple transition">Home</a>
+        <a href="#gallery" class="hover:text-accent-purple transition">Gallery</a>
+        <a href="#" class="hover:text-accent-purple transition">About</a>
+        <a href="#" class="hover:text-accent-purple transition">Contact</a>
+        <button id="admin-btn" class="hover:text-accent-purple transition hidden">Admin</button>
+        <button id="logout-btn" class="hover:text-accent-purple transition hidden">Logout</button>
       </div>
 
-      <!-- Mobile Hamburger Button -->
-      <button id="menu-toggle" class="md:hidden text-3xl focus:outline-none">
-        <span class="sr-only">Toggle menu</span>
+      <!-- Mobile Hamburger -->
+      <button id="menu-toggle" class="md:hidden text-3xl focus:outline-none text-white">
         ☰
       </button>
     </div>
 
-    <!-- Mobile Menu (dropdown) -->
-    <div id="mobile-menu" class="hidden md:hidden bg-black/90 border-b border-gray-800">
-      <div class="px-4 py-6 flex flex-col space-y-6 text-center text-lg uppercase tracking-widest">
-        <a href="#" class="hover:text-accent-purple transition-colors">Home</a>
-        <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">About</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <button id="admin-btn-mobile" class="hover:text-accent-purple transition-colors hidden">Admin</button>
-        <button id="logout-btn-mobile" class="hover:text-accent-purple transition-colors hidden">Logout</button>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-black/95 border-b border-gray-800">
+      <div class="px-6 py-8 flex flex-col items-center space-y-6 text-lg uppercase tracking-widest">
+        <a href="#" class="hover:text-accent-purple transition">Home</a>
+        <a href="#gallery" class="hover:text-accent-purple transition">Gallery</a>
+        <a href="#" class="hover:text-accent-purple transition">About</a>
+        <a href="#" class="hover:text-accent-purple transition">Contact</a>
+        <button id="admin-btn-mobile" class="hover:text-accent-purple transition hidden">Admin</button>
+        <button id="logout-btn-mobile" class="hover:text-accent-purple transition hidden">Logout</button>
       </div>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="min-h-screen flex items-center justify-center text-center px-4 sm:px-6 pt-20">
-    <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-[0.1em] text-white opacity-90 drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+  <!-- Hero - Scaled for mobile -->
+  <section class="min-h-screen flex items-center justify-center text-center px-4 pt-20">
+    <h1 class="text-6xl xs:text-7xl sm:text-8xl md:text-9xl font-bold tracking-[0.08em] text-white opacity-90 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)]">
       COMATOZZE
     </h1>
   </section>
 
   <!-- Gallery -->
-  <section id="gallery" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+  <section id="gallery" class="py-16 px-4 sm:px-6">
     <div class="max-w-7xl mx-auto">
-      <h2 class="text-4xl sm:text-5xl font-medium text-center mb-12 sm:mb-16 tracking-wider text-white">Gallery</h2>
+      <h2 class="text-4xl sm:text-5xl font-medium text-center mb-10 sm:mb-16 tracking-wider text-white">Gallery</h2>
       <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <!-- Images will be dynamically loaded here -->
+        <!-- Images loaded here -->
       </div>
-
-      <div class="text-center mt-12 sm:mt-16">
-        <button id="load-more" class="border-2 border-accent-purple text-accent-purple px-8 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-accent-purple hover:text-white transition-colors duration-300 uppercase tracking-wider text-sm">
+      <div class="text-center mt-12">
+        <button id="load-more" class="border-2 border-accent-purple text-accent-purple px-8 py-3 sm:px-10 sm:py-4 rounded-full hover:bg-accent-purple hover:text-white transition uppercase tracking-wider text-sm">
           Load More
         </button>
       </div>
@@ -89,91 +87,97 @@
   </section>
 
   <!-- Admin Panel -->
-  <section id="admin-panel" class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-gray-900 hidden">
+  <section id="admin-panel" class="py-16 px-4 sm:px-6 bg-gray-900 hidden">
     <div class="max-w-7xl mx-auto">
-      <h2 class="text-4xl sm:text-5xl font-medium text-center mb-12 sm:mb-16 tracking-wider text-white">Admin Panel</h2>
-      
-      <div id="login-form" class="max-w-md mx-auto">
-        <input type="email" id="email" placeholder="Email" class="w-full mb-4 p-3 sm:p-4 rounded bg-gray-800 text-white text-base">
-        <input type="password" id="password" placeholder="Password" class="w-full mb-4 p-3 sm:p-4 rounded bg-gray-800 text-white text-base">
-        <button id="login" class="w-full bg-accent-purple text-white p-3 sm:p-4 rounded hover:bg-accent-dark text-base">Login</button>
-        <button id="signup" class="w-full mt-4 bg-gray-700 text-white p-3 sm:p-4 rounded hover:bg-gray-600 text-base">Sign Up</button>
+      <h2 class="text-4xl sm:text-5xl font-medium text-center mb-10 sm:mb-16 tracking-wider text-white">Admin Panel</h2>
+      <div id="login-form" class="max-w-md mx-auto space-y-4">
+        <input type="email" id="email" placeholder="Email" class="w-full p-3.5 rounded bg-gray-800 text-white">
+        <input type="password" id="password" placeholder="Password" class="w-full p-3.5 rounded bg-gray-800 text-white">
+        <button id="login" class="w-full bg-accent-purple text-white p-3.5 rounded hover:bg-accent-dark">Login</button>
+        <button id="signup" class="w-full bg-gray-700 text-white p-3.5 rounded hover:bg-gray-600">Sign Up</button>
       </div>
-
-      <div id="upload-form" class="max-w-md mx-auto hidden">
-        <input type="file" id="image-file" accept="image/*" class="w-full mb-4 p-3 sm:p-4 rounded bg-gray-800 text-white text-base">
-        <input type="text" id="caption" placeholder="Caption (e.g., neon coma)" class="w-full mb-4 p-3 sm:p-4 rounded bg-gray-800 text-white text-base">
-        <button id="upload" class="w-full bg-accent-purple text-white p-3 sm:p-4 rounded hover:bg-accent-dark text-base">Upload Image</button>
+      <div id="upload-form" class="max-w-md mx-auto space-y-4 hidden">
+        <input type="file" id="image-file" accept="image/*" class="w-full p-3.5 rounded bg-gray-800 text-white">
+        <input type="text" id="caption" placeholder="Caption (e.g., neon coma)" class="w-full p-3.5 rounded bg-gray-800 text-white">
+        <button id="upload" class="w-full bg-accent-purple text-white p-3.5 rounded hover:bg-accent-dark">Upload Image</button>
       </div>
     </div>
   </section>
 
-  <!-- Lightbox Modal -->
-  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-50 transition-opacity duration-300">
-    <button id="close-btn" class="absolute top-4 right-4 sm:top-8 sm:right-8 text-5xl sm:text-6xl text-white hover:text-accent-purple transition-colors cursor-pointer">&times;</button>
-    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] sm:max-h-[90vh] max-w-[90vw] object-contain transition-transform duration-300 scale-95">
+  <!-- Lightbox -->
+  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-50">
+    <button id="close-btn" class="absolute top-4 right-4 text-5xl text-white hover:text-accent-purple">&times;</button>
+    <img id="lightbox-img" src="" alt="" class="max-h-[80vh] sm:max-h-[90vh] max-w-[95vw] object-contain">
   </div>
 
   <!-- Footer -->
-  <footer class="py-10 sm:py-12 text-center text-gray-500 border-t border-gray-800">
+  <footer class="py-10 text-center text-gray-500 border-t border-gray-800">
     <p class="text-sm">© 2026 Comatozze</p>
-    <div class="mt-4 space-x-6 text-xl sm:text-2xl">
-      <a href="#" class="hover:text-accent-purple transition-colors">Instagram</a>
-      <a href="#" class="hover:text-accent-purple transition-colors">X</a>
-      <a href="#" class="hover:text-accent-purple transition-colors">Email</a>
+    <div class="mt-4 space-x-8 text-xl">
+      <a href="#" class="hover:text-accent-purple">Instagram</a>
+      <a href="#" class="hover:text-accent-purple">X</a>
+      <a href="#" class="hover:text-accent-purple">Email</a>
     </div>
   </footer>
 
-  <!-- JavaScript -->
   <script>
-    // Supabase setup (same as before)
+    // Supabase (your credentials)
     const SUPABASE_URL = 'https://oolcpfghhfmxidtmmsch.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_ujRlIEEeafETAt-BhrvgdA__Rosn__S';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ... (keep your existing elements selection)
+    // Elements...
+    const galleryGrid = document.getElementById('gallery-grid');
+    const loadMoreBtn = document.getElementById('load-more');
+    const adminBtn = document.getElementById('admin-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const adminPanel = document.getElementById('admin-panel');
+    const loginForm = document.getElementById('login-form');
+    const uploadForm = document.getElementById('upload-form');
+    // ... other elements
 
     // Mobile menu toggle
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const adminBtnMobile = document.getElementById('admin-btn-mobile');
-    const logoutBtnMobile = document.getElementById('logout-btn-mobile');
-
-    menuToggle?.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
     });
 
-    // Sync auth buttons to mobile menu too
+    // Auth check (add mobile buttons sync)
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         adminBtn.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
-        adminBtnMobile?.classList.remove('hidden');
-        logoutBtnMobile?.classList.remove('hidden');
-        showUploadForm();
+        document.getElementById('admin-btn-mobile')?.classList.remove('hidden');
+        document.getElementById('logout-btn-mobile')?.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        uploadForm.classList.remove('hidden');
       } else {
         adminBtn.classList.add('hidden');
         logoutBtn.classList.add('hidden');
-        adminBtnMobile?.classList.add('hidden');
-        logoutBtnMobile?.classList.add('hidden');
+        document.getElementById('admin-btn-mobile')?.classList.add('hidden');
+        document.getElementById('logout-btn-mobile')?.classList.add('hidden');
       }
     }
     checkAuth();
 
-    // ... (keep your existing login, signup, logout, upload, loadImages, lightbox logic)
+    // ... your existing login/signup/logout/upload/loadImages/showImage functions
 
-    // Fix template literals in upload and gallery (as previously noted)
-    // In upload:
+    // FIX in upload function:
     // .upload(`\( {Date.now()}_ \){file.name}`, file)
 
-    // In loadImages innerHTML:
-    // <img src="\( {img.url}" alt=" \){img.caption}" loading="lazy" class="w-full h-auto aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-110">
+    // FIX in loadImages innerHTML:
+    item.innerHTML = `
+      <div class="aspect-[3/4] overflow-hidden rounded-lg">
+        <img src="\( {img.url}" alt=" \){img.caption}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+      </div>
+      <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 sm:p-6">
+        <p class="text-base sm:text-lg italic lowercase">${img.caption}</p>
+      </div>
+    `;
 
-    // Initial load & load more (same)
+    // Initial load
     loadImages();
     loadMoreBtn.addEventListener('click', loadImages);
   </script>
-
 </body>
 </html>
