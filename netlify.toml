@@ -16,10 +16,10 @@
 # Optional: If you want to serve admin.html specifically for /admin
 # (uncomment if you prefer a separate admin page instead of JS routing)
 # [[redirects]]
-#   from = "/admin"
-#   to = "/admin.html"
-#   status = 200
-#   force = true
+ from = "/admin"
+ to = "/admin.html"
+ status = 200
+ force = true
 
 # Optional: Pretty URLs (remove .html extension if someone types it)
 [[redirects]]
