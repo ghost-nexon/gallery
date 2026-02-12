@@ -30,22 +30,19 @@
 </head>
 <body class="bg-black text-gray-200 font-grotesk min-h-screen">
 
-  <!-- Navbar - hidden on /admin -->
-  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
       <div class="text-2xl sm:text-3xl font-medium tracking-wider text-white">COMATOZZE</div>
 
-      <!-- Desktop Menu -->
       <div class="hidden md:flex items-center space-x-8 text-sm uppercase tracking-widest">
         <a href="/" class="hover:text-accent-purple transition-colors">Home</a>
-        <a href="/gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
+        <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
         <a href="#" class="hover:text-accent-purple transition-colors">About</a>
         <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <button id="admin-btn" class="hover:text-accent-purple transition-colors hidden">Admin</button>
-        <button id="logout-btn" class="hover:text-accent-purple transition-colors hidden">Logout</button>
+        <a href="admin.html" class="hover:text-accent-purple transition-colors">Admin</a>
       </div>
 
-      <!-- Mobile Hamburger -->
       <button id="menu-toggle" class="md:hidden text-3xl focus:outline-none">
         ☰
       </button>
@@ -55,237 +52,70 @@
     <div id="mobile-menu" class="hidden md:hidden bg-black/95 border-b border-gray-800">
       <div class="px-6 py-8 flex flex-col items-center space-y-6 text-lg uppercase tracking-widest">
         <a href="/" class="hover:text-accent-purple transition-colors">Home</a>
-        <a href="/gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
+        <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
         <a href="#" class="hover:text-accent-purple transition-colors">About</a>
         <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <button id="admin-btn-mobile" class="hover:text-accent-purple transition-colors hidden">Admin</button>
-        <button id="logout-btn-mobile" class="hover:text-accent-purple transition-colors hidden">Logout</button>
+        <a href="admin.html" class="hover:text-accent-purple transition-colors">Admin</a>
       </div>
     </div>
   </nav>
 
-  <!-- Main content (hidden on /admin) -->
-  <main id="main-content">
-    <!-- Hero -->
-    <section class="min-h-screen flex items-center justify-center text-center px-4 pt-20">
-      <h1 class="text-6xl xs:text-7xl sm:text-8xl md:text-9xl font-bold tracking-[0.08em] text-white opacity-90 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)]">
-        COMATOZZE
-      </h1>
-    </section>
+  <!-- Hero -->
+  <section class="min-h-screen flex items-center justify-center text-center px-4 pt-20">
+    <h1 class="text-6xl xs:text-7xl sm:text-8xl md:text-9xl font-bold tracking-[0.08em] text-white opacity-90 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)]">
+      COMATOZZE
+    </h1>
+  </section>
 
-    <!-- Gallery -->
-    <section id="gallery" class="py-16 px-4 sm:px-6">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="text-4xl sm:text-5xl font-medium text-center mb-12 tracking-wider text-white">Gallery</h2>
-        <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-h-[400px]">
-          <!-- Images loaded here -->
-        </div>
-
-        <div class="text-center mt-12">
-          <button id="load-more" class="border-2 border-accent-purple text-accent-purple px-8 py-3 sm:px-10 sm:py-4 rounded-full hover:bg-accent-purple hover:text-white transition-colors duration-300 uppercase tracking-wider text-sm">
-            Load More
-          </button>
-        </div>
+  <!-- Gallery -->
+  <section id="gallery" class="py-16 px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-4xl sm:text-5xl font-medium text-center mb-12 tracking-wider text-white">Gallery</h2>
+      <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Images will be loaded here -->
       </div>
-    </section>
-  </main>
-
-  <!-- Admin Panel -->
-  <section id="admin-panel" class="py-16 px-4 sm:px-6 bg-gray-900 hidden">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="text-4xl sm:text-5xl font-medium text-center mb-12 tracking-wider text-white">Admin Panel</h2>
-
-      <div id="login-form" class="max-w-md mx-auto space-y-4">
-        <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-accent-purple">
-        <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-accent-purple">
-        <button id="login" class="w-full bg-accent-purple text-white p-4 rounded hover:bg-accent-dark transition">Login</button>
-        <button id="signup" class="w-full bg-gray-700 text-white p-4 rounded hover:bg-gray-600 transition">Sign Up</button>
-      </div>
-
-      <div id="upload-form" class="max-w-md mx-auto space-y-4 hidden">
-        <input type="file" id="image-file" accept="image/*" class="w-full p-4 rounded bg-gray-800 text-white">
-        <input type="text" id="caption" placeholder="Caption (e.g., neon coma)" class="w-full p-4 rounded bg-gray-800 text-white">
-        <button id="upload" class="w-full bg-accent-purple text-white p-4 rounded hover:bg-accent-dark transition">Upload Image</button>
-      </div>
-
-      <div class="text-center mt-10">
-        <button id="back-to-main" class="text-accent-purple hover:underline text-lg">← Back to Main Site</button>
+      <div class="text-center mt-12">
+        <button id="load-more" class="border-2 border-accent-purple text-accent-purple px-8 py-3 sm:px-10 sm:py-4 rounded-full hover:bg-accent-purple hover:text-white transition uppercase tracking-wider text-sm">
+          Load More
+        </button>
       </div>
     </div>
   </section>
 
   <!-- Lightbox -->
-  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-50 transition-opacity duration-300">
-    <button id="close-btn" class="absolute top-4 right-4 sm:top-8 sm:right-8 text-5xl sm:text-6xl text-white hover:text-accent-purple transition-colors cursor-pointer">&times;</button>
-    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] sm:max-h-[90vh] max-w-[95vw] object-contain transition-transform duration-300">
+  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-50">
+    <button id="close-btn" class="absolute top-4 right-4 text-5xl text-white hover:text-accent-purple">&times;</button>
+    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] max-w-[95vw] object-contain">
   </div>
 
-  <!-- Footer - hidden on /admin -->
-  <footer id="main-footer" class="py-10 sm:py-12 text-center text-gray-500 border-t border-gray-800">
+  <!-- Footer -->
+  <footer class="py-10 text-center text-gray-500 border-t border-gray-800">
     <p class="text-sm">© 2026 Comatozze</p>
     <div class="mt-4 space-x-6 text-xl">
-      <a href="#" class="hover:text-accent-purple transition-colors">Instagram</a>
-      <a href="#" class="hover:text-accent-purple transition-colors">X</a>
-      <a href="#" class="hover:text-accent-purple transition-colors">Email</a>
+      <a href="#" class="hover:text-accent-purple">Instagram</a>
+      <a href="#" class="hover:text-accent-purple">X</a>
+      <a href="#" class="hover:text-accent-purple">Email</a>
     </div>
   </footer>
 
   <script>
-    // ────────────────────────────────────────────────
-    // Supabase Config
-    // ────────────────────────────────────────────────
     const SUPABASE_URL = 'https://oolcpfghhfmxidtmmsch.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_ujRlIEEeafETAt-BhrvgdA__Rosn__S'; // Replace with your real anon key
+    const SUPABASE_KEY = 'sb_publishable_ujRlIEEeafETAt-BhrvgdA__Rosn__S';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ────────────────────────────────────────────────
-    // DOM Elements
-    // ────────────────────────────────────────────────
-    const mainNav      = document.getElementById('main-nav');
-    const mainContent  = document.getElementById('main-content');
-    const mainFooter   = document.getElementById('main-footer');
-    const adminPanel   = document.getElementById('admin-panel');
-    const loginForm    = document.getElementById('login-form');
-    const uploadForm   = document.getElementById('upload-form');
-    const galleryGrid  = document.getElementById('gallery-grid');
-    const loadMoreBtn  = document.getElementById('load-more');
-
+    const galleryGrid = document.getElementById('gallery-grid');
+    const loadMoreBtn = document.getElementById('load-more');
     let offset = 0;
     const limit = 30;
     let allImages = [];
 
-    // ────────────────────────────────────────────────
-    // Detect /admin route (works with Netlify redirects)
-    // ────────────────────────────────────────────────
-    const isAdminPage = window.location.pathname === '/admin' || 
-                        window.location.pathname.endsWith('/admin');
-
-    if (isAdminPage) {
-      mainNav.classList.add('hidden');
-      mainContent.classList.add('hidden');
-      mainFooter.classList.add('hidden');
-      adminPanel.classList.remove('hidden');
-    }
-
-    // ────────────────────────────────────────────────
-    // Mobile menu toggle
-    // ────────────────────────────────────────────────
+    // Mobile menu
     document.getElementById('menu-toggle')?.addEventListener('click', () => {
       document.getElementById('mobile-menu').classList.toggle('hidden');
     });
 
-    // ────────────────────────────────────────────────
-    // Authentication state
-    // ────────────────────────────────────────────────
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        document.getElementById('admin-btn')?.classList.remove('hidden');
-        document.getElementById('logout-btn')?.classList.remove('hidden');
-        document.getElementById('admin-btn-mobile')?.classList.remove('hidden');
-        document.getElementById('logout-btn-mobile')?.classList.remove('hidden');
-        loginForm.classList.add('hidden');
-        uploadForm.classList.remove('hidden');
-      } else {
-        document.getElementById('admin-btn')?.classList.add('hidden');
-        document.getElementById('logout-btn')?.classList.add('hidden');
-        document.getElementById('admin-btn-mobile')?.classList.add('hidden');
-        document.getElementById('logout-btn-mobile')?.classList.add('hidden');
-        loginForm.classList.remove('hidden');
-        uploadForm.classList.add('hidden');
-      }
-    }
-    checkAuth();
-
-    // ────────────────────────────────────────────────
-    // Login / Signup / Logout
-    // ────────────────────────────────────────────────
-    document.getElementById('login')?.addEventListener('click', async () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
-      else checkAuth();
-    });
-
-    document.getElementById('signup')?.addEventListener('click', async () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) alert(error.message);
-      else alert('Check your email for confirmation link');
-    });
-
-    document.getElementById('logout-btn')?.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      checkAuth();
-    });
-
-    document.getElementById('logout-btn-mobile')?.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      checkAuth();
-    });
-
-    // ────────────────────────────────────────────────
-    // Open admin from main page
-    // ────────────────────────────────────────────────
-    document.getElementById('admin-btn')?.addEventListener('click', () => {
-      window.location.pathname = '/admin';
-    });
-
-    document.getElementById('admin-btn-mobile')?.addEventListener('click', () => {
-      window.location.pathname = '/admin';
-    });
-
-    // Back to main
-    document.getElementById('back-to-main')?.addEventListener('click', () => {
-      window.location.pathname = '/';
-    });
-
-    // ────────────────────────────────────────────────
-    // Upload Image
-    // ────────────────────────────────────────────────
-    document.getElementById('upload')?.addEventListener('click', async () => {
-      const file = document.getElementById('image-file').files[0];
-      const caption = document.getElementById('caption').value.trim();
-
-      if (!file || !caption) {
-        alert('Please select an image and enter a caption');
-        return;
-      }
-
-      try {
-        const fileName = `\( {Date.now()}_ \){file.name.replace(/\s+/g, '_')}`;
-        const { data, error: uploadError } = await supabase.storage
-          .from('images')
-          .upload(fileName, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('images')
-          .getPublicUrl(fileName);
-
-        const { error: dbError } = await supabase
-          .from('images')
-          .insert({ url: publicUrl, caption });
-
-        if (dbError) throw dbError;
-
-        alert('Image uploaded successfully!');
-        document.getElementById('image-file').value = '';
-        document.getElementById('caption').value = '';
-      } catch (err) {
-        alert('Upload failed: ' + err.message);
-      }
-    });
-
-    // ────────────────────────────────────────────────
-    // Load Gallery Images (only on main page)
-    // ────────────────────────────────────────────────
+    // Load images
     async function loadImages() {
-      if (isAdminPage) return;
-
       const { data, error } = await supabase
         .from('images')
         .select('url, caption')
@@ -293,39 +123,35 @@
         .range(offset, offset + limit - 1);
 
       if (error) {
-        console.error('Error loading images:', error);
+        console.error(error);
         return;
       }
 
       data.forEach(img => {
-        const div = document.createElement('div');
-        div.className = 'group relative overflow-hidden rounded-xl shadow-2xl cursor-pointer gallery-item';
-        div.innerHTML = `
-          <div class="aspect-[3/4] overflow-hidden bg-gray-900">
+        const item = document.createElement('div');
+        item.className = 'group relative overflow-hidden rounded-xl shadow-2xl cursor-pointer';
+        item.innerHTML = `
+          <div class="aspect-[3/4] overflow-hidden">
             <img src="\( {img.url}" alt=" \){img.caption}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
           </div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-            <p class="text-base sm:text-lg italic text-white">${img.caption}</p>
+          <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
+            <p class="text-base sm:text-lg italic lowercase">${img.caption}</p>
           </div>
         `;
-        galleryGrid.appendChild(div);
+        galleryGrid.appendChild(item);
         allImages.push({ src: img.url, caption: img.caption });
       });
 
-      offset += data.length;
+      offset += limit;
+      if (data.length < limit) loadMoreBtn.style.display = 'none';
 
-      if (data.length < limit) {
-        loadMoreBtn.style.display = 'none';
-      }
-
-      addGalleryListeners();
+      document.querySelectorAll('.group').forEach((el, i) => {
+        el.addEventListener('click', () => showImage(i));
+      });
     }
 
-    // ────────────────────────────────────────────────
     // Lightbox
-    // ────────────────────────────────────────────────
     let currentIndex = 0;
-
     function showImage(index) {
       currentIndex = index;
       document.getElementById('lightbox-img').src = allImages[index].src;
@@ -338,40 +164,16 @@
       document.getElementById('lightbox').classList.remove('flex');
     });
 
-    document.getElementById('lightbox')?.addEventListener('click', (e) => {
+    document.getElementById('lightbox')?.addEventListener('click', e => {
       if (e.target === document.getElementById('lightbox')) {
         document.getElementById('lightbox').classList.add('hidden');
         document.getElementById('lightbox').classList.remove('flex');
       }
     });
 
-    document.addEventListener('keydown', (e) => {
-      const lb = document.getElementById('lightbox');
-      if (lb.classList.contains('hidden')) return;
-      if (e.key === 'Escape') lb.classList.add('hidden'), lb.classList.remove('flex');
-      if (e.key === 'ArrowRight') {
-        currentIndex = (currentIndex + 1) % allImages.length;
-        document.getElementById('lightbox-img').src = allImages[currentIndex].src;
-      }
-      if (e.key === 'ArrowLeft') {
-        currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
-        document.getElementById('lightbox-img').src = allImages[currentIndex].src;
-      }
-    });
-
-    function addGalleryListeners() {
-      document.querySelectorAll('.gallery-item').forEach((item, i) => {
-        item.addEventListener('click', () => showImage(i));
-      });
-    }
-
-    // ────────────────────────────────────────────────
-    // Initialize
-    // ────────────────────────────────────────────────
-    if (!isAdminPage) {
-      loadImages();
-      loadMoreBtn.addEventListener('click', loadImages);
-    }
+    // Init
+    loadImages();
+    loadMoreBtn.addEventListener('click', loadImages);
   </script>
 </body>
 </html>
