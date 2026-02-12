@@ -1,0 +1,18 @@
+# netlify.toml
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Optional: you can add more settings later if needed
+[build]
+  publish = "."
+  command = ""  # no build command needed for plain HTML/JS
+
+# Optional: enable pretty URLs (remove .html extensions)
+[[redirects]]
+  from = "/*"
+  to = "/:splat"
+  status = 200
