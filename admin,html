@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comatozze Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            grotesk: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            accent: {
+              purple: '#a855f7',
+              light: '#c084fc',
+              dark: '#7e22ce',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-black text-gray-200 font-grotesk min-h-screen">
+
+  <section class="py-12 px-4 sm:px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="flex flex-col sm:flex-row items-center justify-between mb-12 gap-6">
+        <h1 class="text-4xl sm:text-5xl font-medium tracking-wider text-white">Admin Dashboard</h1>
+        <a href="/" class="text-accent-purple hover:underline text-lg">← Back to Gallery</a>
+      </div>
+
+      <!-- Login Form -->
+      <div id="login-form" class="max-w-md mx-auto space-y-5">
+        <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-accent-purple">
+        <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-accent-purple">
+        <button id="login" class="w-full bg-accent-purple text-white p-4 rounded hover:bg-accent-dark transition font-medium">Login</button>
+        <button id="signup" class="w-full bg-gray-700 text-white p-4 rounded hover:bg-gray-600 transition font-medium">Sign Up</button>
+      </div>
+
+      <!-- Upload Form -->
+      <div id="upload-form" class="max-w-md mx-auto space-y-5 hidden mt-12">
+        <input type="file" id="image-file" accept="image/*" class="w-full p-4 rounded bg-gray-800 text-white">
+        <input type="text" id="caption" placeholder="Caption (e.g., neon coma)" class="w-full p-4 rounded bg-gray-800 text-white">
+        <button id="upload" class="w-full bg-accent-purple text-white p-4 rounded hover:bg-accent-dark transition font-medium">Upload Image</button>
+      </div>
+
+      <!-- Logout -->
+      <div id="logout-area" class="text-center mt-10 hidden">
+        <button id="logout" class="text-accent-purple hover:underline text-lg">Logout</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const SUPABASE_URL = 'https://oolcpfghhfmxidtmmsch.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ujRlIEEeafETAt-BhrvgdA__Rosn__S';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const loginForm  = document.getElementById('login-form');
+    const uploadForm = document.getElementById('upload-form');
+    const logoutArea = document.getElementById('logout-area');
+
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        loginForm.classList.add('hidden');
+        uploadForm.classList.remove('hidden');
+        logoutArea.classList.remove('hidden');
+      } else {
+        loginForm.classList.remove('hidden');
+        uploadForm.classList.add('hidden');
+        logoutArea.classList.add('hidden');
+      }
+    }
+    checkAuth();
+
+    document.getElementById('login')?.addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+      else checkAuth();
+    });
+
+    document.getElementById('signup')?.addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) alert(error.message);
+      else alert('Check your email for confirmation');
+    });
+
+    document.getElementById('logout')?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      checkAuth();
+    });
+
+    document.getElementById('upload')?.addEventListener('click', async () => {
+      const file = document.getElementById('image-file').files[0];
+      const caption = document.getElementById('caption').value.trim();
+
+      if (!file || !caption) {
+        alert('Please select image and add caption');
+        return;
+      }
+
+      try {
+        const fileName = `\( {Date.now()}_ \){file.name.replace(/\s+/g, '_')}`;
+        const { data, error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+
+        const { error: dbError } = await supabase
+          .from('images')
+          .insert({ url: publicUrl, caption });
+
+        if (dbError) throw dbError;
+
+        alert('Image uploaded successfully!');
+        document.getElementById('image-file').value = '';
+        document.getElementById('caption').value = '';
+      } catch (err) {
+        alert('Upload failed: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
