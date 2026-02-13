@@ -1,0 +1,20 @@
+# wrangler.toml
+name = "comatozze-gallery"               # Change to your desired project name (lowercase, no spaces, unique in your account)
+
+# Required for Pages compatibility when using Wrangler
+compatibility_date = "2025-01-01"         # Use a recent date (or today's date)
+
+# Tells Pages / Wrangler where the built static files are
+# Since you have no build step → point to root
+pages_build_output_dir = "."
+
+# Optional: if you ever add Cloudflare Pages Functions (/_worker.js or /functions/)
+# For now you don't need this section
+
+# Optional: compatibility flags (only if you later use something that needs them)
+# compatibility_flags = ["nodejs_compat"]
+
+# Optional: environment variables can be defined here (but better to set them in dashboard / GitHub Secrets)
+# [vars]
+# SUPABASE_URL = "https://your-project.supabase.co"
+# SUPABASE_ANON_KEY = "your-anon-key"
