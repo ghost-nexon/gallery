@@ -1,4 +1,4 @@
-# Comatozze Gallery Website
+# Comatozze 
 
 ## Overview
 Comatozze is an image gallery website with a public client view and a private admin panel. Built using HTML, Tailwind CSS (via CDN), Vanilla JavaScript, and Supabase for authentication, database, and storage. Deployed on Netlify.
@@ -47,6 +47,8 @@ Comatozze is an image gallery website with a public client view and a private ad
 - `assets/js/`: JavaScript files.
 - `netlify/netlify.toml`: Netlify config.
 - `.gitignore`: Ignore files.
+### Deploy on Render
+[![Deploy to Render](https://render.com/images/deploy-to-render.svg)](https://render.com/deploy?repo=https://github.com/ghost-nexon/gallery)
 
 ## Usage
 - Client: Visit the site to view the gallery.
