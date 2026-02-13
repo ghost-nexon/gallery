@@ -1,158 +1,207 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const loginForm = document.getElementById('login-form');
-    const adminContent = document.getElementById('admin-content');
-    const authForm = document.getElementById('auth-form');
-    const authError = document.getElementById('auth-error');
-    const uploadForm = document.getElementById('upload-form');
-    const imageFile = document.getElementById('image-file');
-    const preview = document.getElementById('preview');
-    const previewImage = document.getElementById('preview-image');
-    const title = document.getElementById('title');
-    const description = document.getElementById('description');
-    const uploadFeedback = document.getElementById('upload-feedback');
-    const imagesList = document.getElementById('images-list');
+// assets/js/admin.js  (updated bucket = 'images')
+document.addEventListener('DOMContentLoaded', () => {
+  const loginPage    = document.getElementById('login')
+  const dashboard    = document.getElementById('dashboard')
+  const loginForm    = document.getElementById('login-form')
+  const loginError   = document.getElementById('login-error')
+  const signoutBtn   = document.getElementById('signout')
+  const uploadForm   = document.getElementById('upload-form')
+  const fileInput    = document.getElementById('file')
+  const preview      = document.getElementById('preview')
+  const previewImg   = document.getElementById('preview-img')
+  const titleEl      = document.getElementById('title')
+  const descEl       = document.getElementById('description')
+  const uploadMsg    = document.getElementById('upload-msg')
+  const imagesList   = document.getElementById('images-list')
 
-    // Check session
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        showAdminContent();
+  // Session check
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) showDashboard()
+  })
+
+  // Login
+  loginForm.onsubmit = async e => {
+    e.preventDefault()
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+      loginError.textContent = error.message
+      loginError.classList.remove('hidden')
+      return
     }
 
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    loginError.classList.add('hidden')
+    showDashboard()
+  }
 
-        try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            showAdminContent();⁸
-        } catch (err) {
-            authError.textContent = err.message;
-            authError.classList.remove('hidden');
-        }
-    });
+  function showDashboard() {
+    loginPage.classList.add('hidden')
+    dashboard.classList.remove('hidden')
+    loadAdminImages()
+    setupRealtime()
+  }
 
-    function showAdminContent() {
-        loginForm.classList.add('hidden');
-        adminContent.classList.remove('hidden');
-        loadImages();
-        setupRealtime();
+  signoutBtn.onclick = async () => {
+    await supabase.auth.signOut()
+    location.reload()
+  }
+
+  // Preview
+  fileInput.onchange = () => {
+    const file = fileInput.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = e => {
+      previewImg.src = e.target.result
+      preview.classList.remove('hidden')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Upload
+  uploadForm.onsubmit = async e => {
+    e.preventDefault()
+    const file = fileInput.files[0]
+    if (!file) {
+      uploadMsg.textContent = 'Select an image first'
+      uploadMsg.className = 'text-red-600'
+      return
     }
 
-    imageFile.addEventListener('change', () => {
-        const file = imageFile.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImage.src = e.target.result;
-                preview.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    uploadMsg.textContent = 'Uploading...'
+    uploadMsg.className = 'text-blue-600'
 
-    uploadForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const file = imageFile.files[0];
-        if (!file) return;
+    try {
+      const ext = file.name.split('.').pop()
+      const filename = `\( {crypto.randomUUID()}. \){ext}`
+      const path = filename   // or `uploads/${filename}` if you want subfolder
 
-        uploadFeedback.textContent = 'Uploading...';
-        uploadFeedback.className = 'text-blue-600';
+      const { error: uploadErr } = await supabase.storage
+        .from('images')
+        .upload(path, file)
 
-        try {
-            const filePath = `public/\( {crypto.randomUUID()}- \){file.name}`;
-            const { error: uploadError } = await supabase.storage.from('images').upload(filePath, file);
-            if (uploadError) throw uploadError;
+      if (uploadErr) throw uploadErr
 
-            const { data: urlData } = supabase.storage.from('images').getPublicUrl(filePath);
-            const imageUrl = urlData.publicUrl;
+      const { data: urlData } = supabase.storage
+        .from('images')
+        .getPublicUrl(path)
 
-            const { error: insertError } = await supabase.from('images').insert({
-                title: title.value,
-                description: description.value,
-                image_url: imageUrl
-            });
-            if (insertError) throw insertError;
+      const publicUrl = urlData.publicUrl
 
-            uploadFeedback.textContent = 'Upload successful!';
-            uploadFeedback.className = 'text-green-600';
-            uploadForm.reset();
-            preview.classList.add('hidden');
-        } catch (err) {
-            uploadFeedback.textContent = `Error: ${err.message}`;
-            uploadFeedback.className = 'text-red-600';
-        }
-    });
+      const { error: dbErr } = await supabase
+        .from('images')
+        .insert({
+          title: titleEl.value.trim() || 'Untitled',
+          description: descEl.value.trim() || '',
+          image_url: publicUrl
+        })
 
-    async function loadImages() {
-        try {
-            const { data, error } = await supabase.from('images').select('*').order('created_at', { ascending: false });
-            if (error) throw error;
+      if (dbErr) throw dbErr
 
-            imagesList.innerHTML = '';
-            data.forEach(image => {
-                const div = document.createElement('div');
-                div.className = 'mb-6 p-4 border rounded';
-                div.innerHTML = `
-                    <img src="\( {image.image_url}" alt=" \){image.title}" class="w-32 mb-2">
-                    <input type="text" value="\( {image.title}" class="w-full mb-2 p-1 border rounded" data-id=" \){image.id}" data-field="title">
-                    <textarea class="w-full mb-2 p-1 border rounded" data-id="\( {image.id}" data-field="description"> \){image.description}</textarea>
-                    <button class="bg-blue-600 text-white p-1 rounded mr-2" onclick="updateImage('${image.id}')">Update</button>
-                    <button class="bg-red-600 text-white p-1 rounded" onclick="deleteImage('\( {image.id}', ' \){image.image_url}')">Delete</button>
-                `;
-                imagesList.appendChild(div);
-            });
+      uploadMsg.textContent = 'Upload successful ✓'
+      uploadMsg.className = 'text-green-600'
 
-            // Add event listeners for updates
-            imagesList.querySelectorAll('input, textarea').forEach(el => {
-                el.addEventListener('change', (e) => {
-                    // Changes handled on update button
-                });
-            });
-        } catch (err) {
-            console.error('Error loading images:', err);
-        }
+      uploadForm.reset()
+      preview.classList.add('hidden')
+      loadAdminImages()
+
+    } catch (err) {
+      uploadMsg.textContent = err.message || 'Upload failed'
+      uploadMsg.className = 'text-red-600'
+      console.error(err)
+    }
+  }
+
+  async function loadAdminImages() {
+    const { data, error } = await supabase
+      .from('images')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error(error)
+      imagesList.innerHTML = '<p class="text-red-600 col-span-full">Error loading images</p>'
+      return
     }
 
-    window.updateImage = async (id) => {
-        const titleInput = imagesList.querySelector(`input[data-id="${id}"][data-field="title"]`);
-        const descInput = imagesList.querySelector(`textarea[data-id="${id}"][data-field="description"]`);
+    imagesList.innerHTML = ''
 
-        try {
-            const { error } = await supabase.from('images').update({
-                title: titleInput.value,
-                description: descInput.value
-            }).eq('id', id);
-            if (error) throw error;
-            alert('Update successful!');
-        } catch (err) {
-            alert(`Error: ${err.message}`);
-        }
-    };
+    data.forEach(item => {
+      const card = document.createElement('div')
+      card.className = 'bg-white rounded-xl shadow overflow-hidden'
+      card.innerHTML = `
+        <img src="\( {item.image_url}" alt=" \){item.title}" class="w-full h-48 object-cover"/>
+        <div class="p-4">
+          <input value="\( {item.title || ''}" data-id=" \){item.id}" data-field="title"
+                 class="w-full mb-2 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+          <textarea data-id="${item.id}" data-field="description" rows="2"
+                    class="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">${item.description || ''}</textarea>
+          <div class="flex gap-3">
+            <button onclick="updateImage('${item.id}')"
+                    class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Update</button>
+            <button onclick="deleteImage('\( {item.id}', ' \){item.image_url}')"
+                    class="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700">Delete</button>
+          </div>
+        </div>
+      `
+      imagesList.appendChild(card)
+    })
+  }
 
-    window.deleteImage = async (id, imageUrl) => {
-        if (!confirm('Are you sure?')) return;
+  window.updateImage = async id => {
+    const title = document.querySelector(`input[data-id="${id}"][data-field="title"]`).value.trim()
+    const desc  = document.querySelector(`textarea[data-id="${id}"][data-field="description"]`).value.trim()
 
-        try {
-            const filePath = imageUrl.split('/images/')[1];
-            const { error: storageError } = await supabase.storage.from('images').remove([filePath]);
-            if (storageError) throw storageError;
+    const { error } = await supabase
+      .from('images')
+      .update({ title, description: desc })
+      .eq('id', id)
 
-            const { error: dbError } = await supabase.from('images').delete().eq('id', id);
-            if (dbError) throw dbError;
+    if (error) alert('Update failed: ' + error.message)
+    else alert('Updated')
+  }
 
-            loadImages();
-        } catch (err) {
-            alert(`Error: ${err.message}`);
-        }
-    };
+  window.deleteImage = async (id, url) => {
+    if (!confirm('Delete this image?')) return
 
-    function setupRealtime() {
-        supabase.channel('images-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'images' }, () => {
-                loadImages();
-            })
-            .subscribe();
+    try {
+      // Extract path from public URL
+      const parts = url.split('/storage/v1/object/public/images/')
+      const path = parts[1] || ''
+
+      if (path) {
+        const { error: storageErr } = await supabase.storage
+          .from('images')
+          .remove([path])
+
+        if (storageErr && !storageErr.message.includes('not found')) throw storageErr
+      }
+
+      const { error: dbErr } = await supabase
+        .from('images')
+        .delete()
+        .eq('id', id)
+
+      if (dbErr) throw dbErr
+
+      loadAdminImages()
+      alert('Deleted')
+
+    } catch (err) {
+      alert('Delete failed: ' + err.message)
+      console.error(err)
     }
-});
+  }
+
+  function setupRealtime() {
+    supabase
+      .channel('images-db')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'images' }, () => {
+        loadAdminImages()
+      })
+      .subscribe()
+  }
+})
