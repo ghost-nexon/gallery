@@ -1,5 +1,5 @@
 # wrangler.toml
-name = "comatozze-gallery"               # Change to your desired project name (lowercase, no spaces, unique in your account)
+name = "comatozze"               # Change to your desired project name (lowercase, no spaces, unique in your account)
 
 # Required for Pages compatibility when using Wrangler
 compatibility_date = "2025-01-01"         # Use a recent date (or today's date)
