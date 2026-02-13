@@ -1,288 +1,53 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Comatozze</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            grotesk: ['"Space Grotesk"', 'sans-serif'],
-          },
-          colors: {
-            accent: {
-              purple: '#a855f7',
-              light: '#c084fc',
-              dark: '#7e22ce',
-            }
-          }
-        }
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comatozze Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/admin.js" defer></script>
 </head>
-<body class="bg-black text-gray-200 font-grotesk min-h-screen">
+<body class="bg-gray-100 font-sans">
+    <header class="bg-white shadow-md p-4 text-center">
+        <h1 class="text-3xl font-bold text-gray-800">Comatozze Admin Panel</h1>
+    </header>
+    <main class="container mx-auto p-4">
+        <!-- Login Form -->
+        <div id="login-form" class="max-w-md mx-auto bg-white p-6 rounded shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Login</h2>
+            <form id="auth-form">
+                <input type="email" id="email" placeholder="Email" class="w-full mb-4 p-2 border rounded" required>
+                <input type="password" id="password" placeholder="Password" class="w-full mb-4 p-2 border rounded" required>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Login</button>
+            </form>
+            <p id="auth-error" class="text-red-600 mt-2 hidden"></p>
+        </div>
 
-  <!-- Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-      <div class="text-2xl sm:text-3xl font-medium tracking-wider text-white">COMATOZZE</div>
+        <!-- Admin Content -->
+        <div id="admin-content" class="hidden">
+            <!-- Upload Section -->
+            <section class="bg-white p-6 rounded shadow-md mb-6">
+                <h2 class="text-2xl font-semibold mb-4">Upload Image</h2>
+                <form id="upload-form">
+                    <input type="file" id="image-file" accept="image/*" class="mb-4" required>
+                    <div id="preview" class="mb-4 hidden">
+                        <img id="preview-image" class="max-w-xs" src="" alt="Preview">
+                    </div>
+                    <input type="text" id="title" placeholder="Title" class="w-full mb-4 p-2 border rounded" required>
+                    <textarea id="description" placeholder="Description" class="w-full mb-4 p-2 border rounded" required></textarea>
+                    <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Upload</button>
+                </form>
+                <p id="upload-feedback" class="mt-2"></p>
+            </section>
 
-      <div class="hidden md:flex items-center space-x-8 text-sm uppercase tracking-widest">
-        <a href="/" class="hover:text-accent-purple transition-colors">Home</a>
-        <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">About</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <a href="/admin" class="hover:text-accent-purple transition-colors" data-nav="admin">Admin</a>
-      </div>
-
-      <button id="menu-toggle" class="md:hidden text-3xl focus:outline-none">☰</button>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-black/95 border-b border-gray-800">
-      <div class="px-6 py-8 flex flex-col items-center space-y-6 text-lg uppercase tracking-widest">
-        <a href="/" class="hover:text-accent-purple transition-colors">Home</a>
-        <a href="#gallery" class="hover:text-accent-purple transition-colors">Gallery</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">About</a>
-        <a href="#" class="hover:text-accent-purple transition-colors">Contact</a>
-        <a href="/admin" class="hover:text-accent-purple transition-colors" data-nav="admin">Admin</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main content container -->
-  <main id="app-content" class="pt-20">
-    <!-- Content will be swapped here based on route -->
-  </main>
-
-  <!-- Lightbox (shared) -->
-  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center z-50">
-    <button id="close-btn" class="absolute top-4 right-4 text-5xl text-white hover:text-accent-purple">&times;</button>
-    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] max-w-[95vw] object-contain">
-  </div>
-
-  <script>
-    // ────────────────────────────────────────────────
-    // Supabase
-    // ────────────────────────────────────────────────
-    const SUPABASE_URL = 'https://oolcpfghhfmxidtmmsch.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_ujRlIEEeafETAt-BhrvgdA__Rosn__S';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ────────────────────────────────────────────────
-    // Simple client-side router
-    // ────────────────────────────────────────────────
-    const routes = {
-      '/': 'home',
-      '/admin': 'admin',
-      '': 'home'  // root fallback
-    };
-
-    const content = document.getElementById('app-content');
-
-    function renderRoute() {
-      const path = window.location.pathname;
-      const routeKey = path === '/' || path === '' ? '/' : path;
-      const view = routes[routeKey] || 'home'; // default to home if unknown
-
-      content.innerHTML = ''; // clear previous content
-
-      if (view === 'home') {
-        renderHome();
-      } else if (view === 'admin') {
-        renderAdmin();
-      }
-    }
-
-    // ────────────────────────────────────────────────
-    // Render Home (Gallery + Hero)
-    // ────────────────────────────────────────────────
-    function renderHome() {
-      content.innerHTML = `
-        <section class="min-h-screen flex items-center justify-center text-center px-4">
-          <h1 class="text-6xl xs:text-7xl sm:text-8xl md:text-9xl font-bold tracking-[0.08em] text-white opacity-90 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)]">
-            COMATOZZE
-          </h1>
-        </section>
-
-        <section id="gallery" class="py-16 px-4 sm:px-6">
-          <div class="max-w-7xl mx-auto">
-            <h2 class="text-4xl sm:text-5xl font-medium text-center mb-12 tracking-wider text-white">Gallery</h2>
-            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
-            <div class="text-center mt-12">
-              <button id="load-more" class="border-2 border-accent-purple text-accent-purple px-8 py-3 sm:px-10 sm:py-4 rounded-full hover:bg-accent-purple hover:text-white transition uppercase tracking-wider text-sm">
-                Load More
-              </button>
-            </div>
-          </div>
-        </section>
-      `;
-
-      // Load gallery images
-      const galleryGrid = document.getElementById('gallery-grid');
-      const loadMoreBtn = document.getElementById('load-more');
-      let offset = 0;
-      const limit = 30;
-
-      async function loadImages() {
-        const { data, error } = await supabase
-          .from('images')
-          .select('url, caption')
-          .order('created_at', { ascending: false })
-          .range(offset, offset + limit - 1);
-
-        if (error) return console.error(error);
-
-        data.forEach(img => {
-          const div = document.createElement('div');
-          div.className = 'group relative overflow-hidden rounded-xl shadow-2xl cursor-pointer';
-          div.innerHTML = `
-            <div class="aspect-[3/4] overflow-hidden">
-              <img src="\( {img.url}" alt=" \){img.caption}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-            </div>
-            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
-              <p class="text-base sm:text-lg italic lowercase">${img.caption}</p>
-            </div>
-          `;
-          galleryGrid.appendChild(div);
-        });
-
-        offset += limit;
-        if (data.length < limit) loadMoreBtn.style.display = 'none';
-      }
-
-      loadImages();
-      loadMoreBtn.addEventListener('click', loadImages);
-    }
-
-    // ────────────────────────────────────────────────
-    // Render Admin Dashboard
-    // ────────────────────────────────────────────────
-    function renderAdmin() {
-      content.innerHTML = `
-        <section class="py-12 px-4 sm:px-6">
-          <div class="max-w-3xl mx-auto">
-            <div class="flex flex-col sm:flex-row items-center justify-between mb-12 gap-6">
-              <h1 class="text-4xl sm:text-5xl font-medium tracking-wider text-white">Admin Dashboard</h1>
-              <a href="/" class="text-accent-purple hover:underline text-lg">← Back to Gallery</a>
-            </div>
-
-            <div id="login-form" class="max-w-md mx-auto space-y-5">
-              <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-accent-purple">
-              <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-accent-purple">
-              <button id="login" class="w-full bg-accent-purple text-white p-4 rounded hover:bg-accent-dark transition font-medium">Login</button>
-              <button id="signup" class="w-full bg-gray-700 text-white p-4 rounded hover:bg-gray-600 transition font-medium">Sign Up</button>
-            </div>
-
-            <div id="upload-form" class="max-w-md mx-auto space-y-5 hidden mt-12">
-              <input type="file" id="image-file" accept="image/*" class="w-full p-4 rounded bg-gray-800 text-white">
-              <input type="text" id="caption" placeholder="Caption (e.g., neon coma)" class="w-full p-4 rounded bg-gray-800 text-white">
-              <button id="upload" class="w-full bg-accent-purple text-white p-4 rounded hover:bg-accent-dark transition font-medium">Upload Image</button>
-            </div>
-
-            <div id="logout-area" class="text-center mt-10 hidden">
-              <button id="logout" class="text-accent-purple hover:underline text-lg">Logout</button>
-            </div>
-          </div>
-        </section>
-      `;
-
-      // Admin logic
-      const loginForm   = document.getElementById('login-form');
-      const uploadForm  = document.getElementById('upload-form');
-      const logoutArea  = document.getElementById('logout-area');
-
-      async function checkAuth() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          loginForm.classList.add('hidden');
-          uploadForm.classList.remove('hidden');
-          logoutArea.classList.remove('hidden');
-        } else {
-          loginForm.classList.remove('hidden');
-          uploadForm.classList.add('hidden');
-          logoutArea.classList.add('hidden');
-        }
-      }
-      checkAuth();
-
-      document.getElementById('login')?.addEventListener('click', async () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message);
-        else checkAuth();
-      });
-
-      document.getElementById('signup')?.addEventListener('click', async () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) alert(error.message);
-        else alert('Check your email for confirmation');
-      });
-
-      document.getElementById('logout')?.addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        checkAuth();
-      });
-
-      document.getElementById('upload')?.addEventListener('click', async () => {
-        const file = document.getElementById('image-file').files[0];
-        const caption = document.getElementById('caption').value.trim();
-        if (!file || !caption) return alert('Please select image and add caption');
-
-        try {
-          const fileName = `\( {Date.now()}_ \){file.name.replace(/\s+/g, '_')}`;
-          const { data, error: uploadError } = await supabase.storage
-            .from('images')
-            .upload(fileName, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
-
-          const { error: dbError } = await supabase.from('images').insert({ url: publicUrl, caption });
-          if (dbError) throw dbError;
-
-          alert('Image uploaded successfully!');
-          document.getElementById('image-file').value = '';
-          document.getElementById('caption').value = '';
-        } catch (err) {
-          alert('Upload failed: ' + err.message);
-        }
-      });
-    }
-
-    // ────────────────────────────────────────────────
-    // Navigation & History
-    // ────────────────────────────────────────────────
-    document.querySelectorAll('[data-nav]').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const path = link.getAttribute('href');
-        history.pushState({}, '', path);
-        renderRoute();
-      });
-    });
-
-    window.addEventListener('popstate', renderRoute);
-
-    // Initial render
-    renderRoute();
-
-    // Mobile menu
-    document.getElementById('menu-toggle')?.addEventListener('click', () => {
-      document.getElementById('mobile-menu').classList.toggle('hidden');
-    });
-  </script>
+            <!-- Images List -->
+            <section class="bg-white p-6 rounded shadow-md">
+                <h2 class="text-2xl font-semibold mb-4">Manage Images</h2>
+                <div id="images-list"></div>
+            </section>
+        </div>
+    </main>
 </body>
 </html>
