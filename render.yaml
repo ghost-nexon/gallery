@@ -1,0 +1,44 @@
+# render.yaml
+# Blueprint for Comatozze static gallery site on Render.com
+# No database needed here (Supabase is external)
+
+services:
+  - type: web
+    name: comatozze-gallery
+    env: static               # Important: use 'static' for pure HTML/JS sites
+    plan: free                # or 'starter' / 'standard' if you need more bandwidth
+    branch: main              # change if using a different branch
+    buildCommand: ""          # Empty = no build step
+    staticPublishPath: .      # Serve files from repository root
+    autoDeploy: true          # Auto-deploy on git push (default: true)
+    # Optional: disable auto-deploy if you prefer manual triggers
+    # autoDeploy: false
+
+    # Environment variables (Render prompts for these on first deploy if not set)
+    envVars:
+      - key: SUPABASE_URL
+        sync: false             # Set manually in dashboard after creation
+      - key: SUPABASE_ANON_KEY
+        sync: false             # Set manually (sensitive)
+
+    # Optional: add custom headers (e.g., security)
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+    # Optional: simple redirects/rewrites if needed later
+    # routes:
+    #   - type: redirect
+    #     source: /old-path
+    #     destination: /new-path
+
+    # Optional: enable preview environments for PRs
+    previews:
+      generation: automatic
