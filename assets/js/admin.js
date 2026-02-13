@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            showAdminContent();
+            showAdminContent();⁸
         } catch (err) {
             authError.textContent = err.message;
             authError.classList.remove('hidden');
@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const filePath = `public/\( {crypto.randomUUID()}- \){file.name}`;
-            const { error: uploadError } = await supabase.storage.from('gallery-images').upload(filePath, file);
+            const { error: uploadError } = await supabase.storage.from('images').upload(filePath, file);
             if (uploadError) throw uploadError;
 
-            const { data: urlData } = supabase.storage.from('gallery-images').getPublicUrl(filePath);
+            const { data: urlData } = supabase.storage.from('images').getPublicUrl(filePath);
             const imageUrl = urlData.publicUrl;
 
             const { error: insertError } = await supabase.from('images').insert({
@@ -135,8 +135,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!confirm('Are you sure?')) return;
 
         try {
-            const filePath = imageUrl.split('/gallery-images/')[1];
-            const { error: storageError } = await supabase.storage.from('gallery-images').remove([filePath]);
+            const filePath = imageUrl.split('/images/')[1];
+            const { error: storageError } = await supabase.storage.from('images').remove([filePath]);
             if (storageError) throw storageError;
 
             const { error: dbError } = await supabase.from('images').delete().eq('id', id);
