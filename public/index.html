@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comatozze </title>
+  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-purple-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <h1><i class="fas fa-camera-retro mr-2"></i>Comatozze Gallery</h1>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Discover Amazing Visual Stories</h2>
+            <p class="hero-subtitle">A curated collection of stunning images from around the world</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container main-content">
+        <!-- Gallery -->
+        <div id="galleryLoading" class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading gallery...</p>
+        </div>
+        <div id="galleryContainer" class="gallery-grid hidden">
+            <!-- Images will be loaded here -->
+        </div>
+        <div id="loadingMore" class="loading-more hidden">
+            <div class="spinner-small"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Comatozze . All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- Modal for Image Preview -->
+    <div id="imageModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeModal" class="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modalImage" src="" alt="Preview" class="modal-image">
+            <div id="modalInfo" class="modal-info">
+                <h3 id="modalTitle" class="modal-title"></h3>
+                <p id="modalDescription" class="modal-description"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'https://your-worker.your-subdomain.workers.dev'; // Replace with your worker URL
+        const LIMIT = 20;
+        let offset = 0;
+        let isLoading = false;
+        let hasMore = true;
+
+        // DOM Elements
+        const elements = {
+            galleryContainer: document.getElementById('galleryContainer'),
+            galleryLoading: document.getElementById('galleryLoading'),
+            loadingMore: document.getElementById('loadingMore'),
+            imageModal: document.getElementById('imageModal'),
+            modalImage: document.getElementById('modalImage'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalDescription: document.getElementById('modalDescription'),
+            closeModal: document.getElementById('closeModal')
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            loadImages();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Modal Close
+            elements.closeModal.addEventListener('click', () => {
+                elements.imageModal.classList.add('hidden');
+            });
+
+            // Modal Click Outside
+            elements.imageModal.addEventListener('click', (e) => {
+                if (e.target === elements.imageModal) {                    elements.imageModal.classList.add('hidden');
+                }
+            });
+
+            // Infinite Scroll
+            window.addEventListener('scroll', handleScroll);
+        }
+
+        function handleScroll() {
+            if (isLoading || !hasMore) return;
+            
+            const scrollTop = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            // Trigger load when we're near the bottom (within 1000px)
+            if (scrollTop + windowHeight >= documentHeight - 1000) {
+                loadMoreImages();
+            }
+        }
+
+        async function loadImages() {
+            try {
+                elements.galleryLoading.classList.remove('hidden');
+                elements.galleryContainer.classList.add('hidden');
+                
+                const response = await fetch(`${API_BASE}/api/images?limit=${LIMIT}&offset=${offset}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const images = await response.json();
+                
+                if (images.length < LIMIT) {
+                    hasMore = false;
+                }
+                
+                renderGallery(images, offset === 0);
+                offset += LIMIT;
+            } catch (error) {
+                console.error('Error loading images:', error);
+                alert('Failed to load images. Please try again.');
+            } finally {
+                elements.galleryLoading.classList.add('hidden');
+                elements.galleryContainer.classList.remove('hidden');
+            }
+        }
+
+        async function loadMoreImages() {            if (isLoading || !hasMore) return;
+            
+            isLoading = true;
+            elements.loadingMore.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/images?limit=${LIMIT}&offset=${offset}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const images = await response.json();
+                
+                if (images.length === 0) {
+                    hasMore = false;
+                } else {
+                    renderGallery(images, false);
+                    offset += LIMIT;
+                    
+                    if (images.length < LIMIT) {
+                        hasMore = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading more images:', error);
+            } finally {
+                isLoading = false;
+                elements.loadingMore.classList.add('hidden');
+            }
+        }
+
+        function renderGallery(images, clear = true) {
+            if (clear) {
+                elements.galleryContainer.innerHTML = '';
+            }
+
+            images.forEach(image => {
+                const imgElement = document.createElement('div');
+                imgElement.className = 'gallery-item';
+                
+                imgElement.innerHTML = `
+                    <div class="gallery-overlay">
+                        <div class="gallery-content">
+                            <h3 class="gallery-title">${image.title}</h3>
+                            ${image.description ? `<p class="gallery-description">${image.description}</p>` : ''}
+                            <p class="gallery-date">${new Date(image.created_at).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <img                         src="${image.image_url}" 
+                        alt="${image.title}"
+                        class="gallery-image"
+                        onclick="openModal('${image.image_url}', '${image.title}', '${image.description || ''}')"
+                    >
+                `;
+                
+                elements.galleryContainer.appendChild(imgElement);
+            });
+        }
+
+        function openModal(imageUrl, title, description) {
+            elements.modalImage.src = imageUrl;
+            elements.modalTitle.textContent = title;
+            elements.modalDescription.textContent = description;
+            elements.imageModal.classList.remove('hidden');
+        }
+
+        // Make functions available globally for inline event handlers
+        window.openModal = openModal;
+    </script>
+</body>
+</html>
