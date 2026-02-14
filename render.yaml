@@ -1,27 +1,22 @@
 # render.yaml
 # Blueprint for Comatozze static gallery site on Render.com
-# No database needed here (Supabase is external)
+# Frontend-only deployment (backend is Cloudflare Worker)
 
 services:
   - type: web
     name: comatozze
-    env: static               # Important: use 'static' for pure HTML/JS sites
-    plan: free                # or 'starter' / 'standard' if you need more bandwidth
-    branch: main              # change if using a different branch
-    buildCommand: ""          # Empty = no build step
-    staticPublishPath: .      # Serve files from repository root
-    autoDeploy: true          # Auto-deploy on git push (default: true)
-    # Optional: disable auto-deploy if you prefer manual triggers
-    # autoDeploy: false
+    env: static               # Static site hosting
+    plan: free                # Free tier
+    branch: main              # Deploy from main branch
+    buildCommand: ""          # No build step needed
+    staticPublishPath: .      # Serve from repo root
+    autoDeploy: true          # Deploy on git pushes
 
-    # Environment variables (Render prompts for these on first deploy if not set)
-    envVars:
-      - key: SUPABASE_URL
-        sync: false             # Set manually in dashboard after creation
-      - key: SUPABASE_ANON_KEY
-        sync: false             # Set manually (sensitive)
+    # Custom domain (optional - uncomment if using custom domain)
+    # domains:
+    #   - yourdomain.com
 
-    # Optional: add custom headers (e.g., security)
+    # Security headers
     headers:
       - path: /*
         name: X-Frame-Options
@@ -32,13 +27,38 @@ services:
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: geolocation=(), microphone=(), camera=()
 
-    # Optional: simple redirects/rewrites if needed later
-    # routes:
-    #   - type: redirect
-    #     source: /old-path
-    #     destination: /new-path
+    # Redirects for SPA routing (if needed)
+    # This handles client-side routing for admin page
+    routes:
+      - type: redirect
+        source: /admin
+        destination: /admin.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
-    # Optional: enable preview environments for PRs
+    # Health check (optional)
+    healthCheckPath: /
+
+    # Preview deployments for pull requests
     previews:
       generation: automatic
+
+# Optional: Separate service for admin panel (if desired)
+# services:
+#   - type: web
+#     name: comatozze-admin
+#     env: static
+#     plan: free
+#     branch: main
+#     buildCommand: ""
+#     staticPublishPath: .
+#     autoDeploy: true
+#     rootDir: ./admin
+#     envVars:
+#       - key: API_BASE
+#         sync: false
