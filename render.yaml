@@ -4,7 +4,7 @@
 
 services:
   - type: web
-    name: comatozze-gallery
+    name: comatozze
     env: static               # Important: use 'static' for pure HTML/JS sites
     plan: free                # or 'starter' / 'standard' if you need more bandwidth
     branch: main              # change if using a different branch
