@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comatozze  Admin</title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -94,12 +94,16 @@
                         ></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="imageUrl" class="form-label"><i class="fas fa-link mr-2"></i>Image URL * (https://...jpg/png/webp/gif)</label>
+                        <label for="imageUrl" class="form-label">
+                            <i class="fas fa-link mr-2"></i>Image URL *
+                            <span class="text-xs text-gray-500 block mt-1">Must be HTTPS and end with .jpg, .jpeg, .png, .webp, or .gif</span>                        </label>
                         <input 
-                            type="url"                             id="imageUrl" 
+                            type="url" 
+                            id="imageUrl" 
                             required
                             placeholder="https://example.com/image.jpg"
                             class="form-input"
+                            onblur="validateImageUrl(this)"
                         >
                     </div>
                     <button 
@@ -123,7 +127,7 @@
         <!-- Footer -->
         <footer class="footer">
             <div class="container">
-                <p>&copy; 2026 Comatozze Gallery Admin. All rights reserved.</p>
+                <p>&copy; 2026 Comatozze Admin. All rights reserved.</p>
             </div>
         </footer>
     </div>
@@ -141,11 +145,12 @@
             email: document.getElementById('email'),
             password: document.getElementById('password'),
             adminDashboard: document.getElementById('adminDashboard'),
-            userEmail: document.getElementById('userEmail'),
-            logoutBtn: document.getElementById('logoutBtn'),
+            userEmail: document.getElementById('userEmail'),            logoutBtn: document.getElementById('logoutBtn'),
             addImageForm: document.getElementById('addImageForm'),
-            imagesList: document.getElementById('imagesList')
+            imagesList: document.getElementById('imagesList'),
+            imageUrl: document.getElementById('imageUrl')
         };
+
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             // Check if user is already logged in
@@ -189,12 +194,12 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            
-            const email = elements.email.value.trim();
+                        const email = elements.email.value.trim();
             const password = elements.password.value.trim();
             
             if (!email || !password) {
-                alert('Please enter both email and password');                return;
+                alert('Please enter both email and password');
+                return;
             }
 
             try {
@@ -238,12 +243,12 @@
             showLoginForm();
         }
 
-        async function loadImagesForAdmin(token) {
-            try {
+        async function loadImagesForAdmin(token) {            try {
                 const response = await fetch(`${API_BASE}/api/images?limit=100&offset=0`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
-                    }                });
+                    }
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -278,11 +283,16 @@
                 return;
             }
 
+            // Validate URL format
+            if (!isValidImageUrl(formData.image_url)) {
+                alert('Please enter a valid HTTPS URL ending with .jpg, .jpeg, .png, .webp, or .gif');
+                return;
+            }
+
             try {
                 const response = await fetch(`${API_BASE}/api/images`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+                    headers: {                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(formData)
@@ -292,6 +302,7 @@
                     const error = await response.json();
                     throw new Error(error.error || 'Failed to add image');
                 }
+
                 const result = await response.json();
                 alert('Image added successfully!');
                 
@@ -330,8 +341,7 @@
                         <button 
                             onclick="deleteImage('${image.id}')" 
                             class="btn btn-danger"
-                        >
-                            <i class="fas fa-trash mr-1"></i>Delete
+                        >                            <i class="fas fa-trash mr-1"></i>Delete
                         </button>
                     </div>
                 `;
@@ -341,7 +351,8 @@
         }
 
         async function deleteImage(id) {
-            const token = localStorage.getItem('admin_token');            if (!token) {
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
                 alert('Session expired. Please log in again.');
                 showLoginForm();
                 return;
@@ -379,8 +390,7 @@
             if (!token) {
                 alert('Session expired. Please log in again.');
                 showLoginForm();
-                return;
-            }
+                return;            }
 
             try {
                 // Fetch current image data
@@ -390,7 +400,8 @@
                     }
                 });
 
-                if (!response.ok) {                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const image = await response.json();
@@ -402,6 +413,12 @@
 
                 if (newTitle === image.title && newDescription === (image.description || '') && newImageUrl === image.image_url) {
                     return; // No changes
+                }
+
+                // Validate new URL if changed
+                if (newImageUrl !== image.image_url && !isValidImageUrl(newImageUrl)) {
+                    alert('Please enter a valid HTTPS URL ending with .jpg, .jpeg, .png, .webp, or .gif');
+                    return;
                 }
 
                 // Update image
@@ -422,7 +439,6 @@
                     const error = await updateResponse.json();
                     throw new Error(error.error || 'Failed to update image');
                 }
-
                 alert('Image updated successfully!');
                 
                 // Reload lists
@@ -431,6 +447,48 @@
                 console.error('Error editing image:', error);
                 alert(`Error: ${error.message}`);
             }
+        }
+
+        // URL validation function
+        function isValidImageUrl(urlString) {
+            if (typeof urlString !== 'string' || urlString.trim() === '') return false;
+
+            try {
+                const url = new URL(urlString);
+                
+                if (url.protocol !== 'https:') return false;
+                
+                if (!url.hostname || url.hostname === 'localhost') return false;
+                
+                const pathname = url.pathname;
+                const extMatch = pathname.match(/\.[a-zA-Z]{3,4}(?:\?|#|$)/);
+                if (!extMatch) return false;
+                
+                const ext = extMatch[0].split('?')[0].split('#')[0].toLowerCase();
+                const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+                
+                return validExtensions.includes(ext);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // URL validation on blur
+        function validateImageUrl(input) {
+            const url = input.value.trim();
+            if (!url) return;
+            
+            try {
+                const u = new URL(url);
+                if (u.protocol !== 'https:') {
+                    input.setCustomValidity('Must be HTTPS URL');
+                } else if (! /\.(jpg|jpeg|png|webp|gif)$/.test(u.pathname.toLowerCase())) {
+                    input.setCustomValidity('Must end with .jpg, .jpeg, .png, .webp, or .gif');
+                } else {
+                    input.setCustomValidity('');
+                }
+            } catch (e) {
+                input.setCustomValidity('Invalid URL format');            }
         }
 
         // Make functions available globally for inline event handlers
